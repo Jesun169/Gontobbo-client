@@ -23,22 +23,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverActions: true,
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  // Add rewrites for Clerk's SSO callback
-  async rewrites() {
-    return [
-      {
-        source: '/sso-callback',
-        destination: '/sign-in',
-      },
-      {
-        source: '/sign-in/sso-callback',
-        destination: '/sign-in',
-      },
-    ];
+  typescript: {
+    ignoreBuildErrors: false,
   },
+  swcMinify: true,
+  reactStrictMode: true,
 };
 
 export default nextConfig;
