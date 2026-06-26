@@ -7,8 +7,51 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Compass, Globe, Plane, Star, Users, MapPin, Calendar, Clock, Award, TrendingUp, Shield } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
+
+// ✅ Working Unsplash photo IDs (confirmed)
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80';
+
+const DESTINATIONS = [
+  { name: 'Bali, Indonesia', id: '1507525428034-b723cf961d3e' },
+  { name: 'Paris, France', id: '1499856125952-72489de9b6e8' },
+  { name: 'Tokyo, Japan', id: '1540541338287-41700207dee6' },
+  { name: 'Santorini, Greece', id: '1537956965359-0e5b7f15b9f6' },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Sarah Johnson",
+    id: "1494790108377-be9c29b29330",
+    review: "Gontobbo made planning our trip so easy! The AI recommendations were spot-on and we had an amazing time."
+  },
+  {
+    name: "Michael Chen",
+    id: "1507003211169-0a1dd7228f2d",
+    review: "The smart itinerary feature saved us so much time. We visited places we would have never found on our own."
+  },
+  {
+    name: "Emily Davis",
+    id: "1438761681033-6461ffad8d80",
+    review: "Best travel platform I've used. The AI assistant helped us plan every detail of our dream vacation."
+  }
+];
+
+// ✅ Fallback image if Unsplash fails
+const FALLBACK_IMAGE = 'https://picsum.photos/seed/fallback/400/300';
 
 export default function Home() {
+  // Optional: track image errors to show fallback
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  const handleImageError = (key: string) => {
+    setImgErrors(prev => ({ ...prev, [key]: true }));
+  };
+
+  const getImageSrc = (id: string, width = 400) => {
+    return `https://images.unsplash.com/photo-${id}?w=${width}&q=80`;
+  };
+
   return (
     <>
       <Navbar />
@@ -17,11 +60,12 @@ export default function Home() {
         <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image
-              src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80"
+              src={HERO_IMAGE}
               alt="Travel Hero"
               fill
               className="object-cover"
               priority
+              onError={() => handleImageError('hero')}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
           </div>
@@ -153,38 +197,38 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: 'Bali, Indonesia', image: '1507525428034-b723cf961d3e' },
-                { name: 'Paris, France', image: '1537956965359-0e5b7f15b9f6' },
-                { name: 'Tokyo, Japan', image: '1540541338287-41700207dee6' },
-                { name: 'Santorini, Greece', image: '1499856125952-72489de9b6e8' }
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="group cursor-pointer"
-                >
-                  <div className="relative h-64 rounded-lg overflow-hidden">
-                    <Image
-                      src={`https://images.unsplash.com/photo-${item.image}?w=400&q=80`}
-                      alt={item.name}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <h3 className="text-lg font-semibold">{item.name}</h3>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>4.9 (2.3k reviews)</span>
+              {DESTINATIONS.map((item, index) => {
+                const imageKey = `dest-${index}`;
+                const imageSrc = imgErrors[imageKey] ? FALLBACK_IMAGE : getImageSrc(item.id);
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="group cursor-pointer"
+                  >
+                    <div className="relative h-64 rounded-lg overflow-hidden">
+                      <Image
+                        src={imageSrc}
+                        alt={item.name}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        onError={() => handleImageError(imageKey)}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4 text-white">
+                        <h3 className="text-lg font-semibold">{item.name}</h3>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span>4.9 (2.3k reviews)</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -204,55 +248,41 @@ export default function Home() {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                {
-                  name: "Sarah Johnson",
-                  image: "1494790108377-be9c29b29330",
-                  review: "Gontobbo made planning our trip so easy! The AI recommendations were spot-on and we had an amazing time.",
-                  rating: 5
-                },
-                {
-                  name: "Michael Chen",
-                  image: "1507003211169-0a1dd7228f2d",
-                  review: "The smart itinerary feature saved us so much time. We visited places we would have never found on our own.",
-                  rating: 5
-                },
-                {
-                  name: "Emily Davis",
-                  image: "1438761681033-6461ffad8d80",
-                  review: "Best travel platform I've used. The AI assistant helped us plan every detail of our dream vacation.",
-                  rating: 5
-                }
-              ].map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-card rounded-lg p-6 border shadow-sm"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="relative h-12 w-12 rounded-full overflow-hidden">
-                      <Image
-                        src={`https://images.unsplash.com/photo-${testimonial.image}?w=100&q=80`}
-                        alt={testimonial.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">{testimonial.name}</h4>
-                      <div className="flex text-yellow-400">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-current" />
-                        ))}
+              {TESTIMONIALS.map((testimonial, index) => {
+                const imageKey = `test-${index}`;
+                const imageSrc = imgErrors[imageKey] ? FALLBACK_IMAGE : getImageSrc(testimonial.id, 100);
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                    className="bg-card rounded-lg p-6 border shadow-sm"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="relative h-12 w-12 rounded-full overflow-hidden">
+                        <Image
+                          src={imageSrc}
+                          alt={testimonial.name}
+                          fill
+                          className="object-cover"
+                          onError={() => handleImageError(imageKey)}
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">{testimonial.name}</h4>
+                        <div className="flex text-yellow-400">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-4 w-4 fill-current" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <p className="text-muted-foreground">{testimonial.review}</p>
-                </motion.div>
-              ))}
+                    <p className="text-muted-foreground">{testimonial.review}</p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
