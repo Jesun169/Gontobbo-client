@@ -14,9 +14,9 @@ const HERO_IMAGE = 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800
 
 const DESTINATIONS = [
   { name: 'Bali, Indonesia', id: '1507525428034-b723cf961d3e' },
-  { name: 'Paris, France', id: '1499856125952-72489de9b6e8' },
+ 
   { name: 'Tokyo, Japan', id: '1540541338287-41700207dee6' },
-  { name: 'Santorini, Greece', id: '1537956965359-0e5b7f15b9f6' },
+ 
 ];
 
 const TESTIMONIALS = [

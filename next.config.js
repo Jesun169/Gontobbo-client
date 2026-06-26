@@ -17,6 +17,10 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  // Enable if you use Turbopack locally (optional)
+  // turbopack: {
+  //   root: process.cwd(),
+  // },
 };
 
 module.exports = nextConfig;
