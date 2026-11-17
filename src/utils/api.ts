@@ -1,30 +1,37 @@
-import axios from 'axios';
+import { useState } from 'react';
+import { api } from '@/utils/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export function useAI() {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-export const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Handle unauthorized access
-            localStorage.removeItem('auth_token');
-            window.location.href = '/sign-in';
+    const sendMessage = async (message: string, context?: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data } = await api.post('/ai/chat', { message, context });
+            return data.response;
+        } catch (err) {
+            setError('Failed to send message');
+            throw err;
+        } finally {
+            setLoading(false);
         }
-        return Promise.reject(error);
-    }
-);
+    };
+
+    const generateContent = async (topic: string, type: 'blog' | 'description' | 'social') => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data } = await api.post('/ai/generate', { topic, type });
+            return data.content;
+        } catch (err) {
+            setError('Failed to generate content');
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return { sendMessage, generateContent, loading, error };
+}

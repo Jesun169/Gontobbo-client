@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { useApiClient } from '@/lib/api-client';
 
 export function useAI() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const api = useApiClient();
 
     const sendMessage = async (message: string, context?: string) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('/api/ai/chat', { message, context });
-            return response.data.response;
+            const { data } = await api.post('/ai/chat', { message, context });
+            return data.response;
         } catch (err) {
             setError('Failed to send message');
             throw err;
@@ -23,8 +24,8 @@ export function useAI() {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('/api/ai/generate', { topic, type });
-            return response.data.content;
+            const { data } = await api.post('/ai/generate', { topic, type });
+            return data.content;
         } catch (err) {
             setError('Failed to generate content');
             throw err;
