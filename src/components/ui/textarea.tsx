@@ -1,41 +1,21 @@
-"use client";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-import { SignIn } from "@clerk/nextjs";
-import { motion } from "framer-motion";
+export interface TextareaProps
+    extends React.TextareaHTMLAttributes<HTMLTextAreaElement> { }
 
-export default function SignInPage() {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="w-full max-w-md"
-            >
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
-                    <p className="text-muted-foreground mt-2">Sign in to your Gontobbo account</p>
-                </div>
-                <SignIn
-                    appearance={{
-                        elements: {
-                            rootBox: "w-full",
-                            card: "shadow-lg border bg-card rounded-lg p-6",
-                            headerTitle: "text-2xl font-bold text-foreground",
-                            headerSubtitle: "text-muted-foreground",
-                            socialButtonsBlockButton: "w-full flex items-center justify-center gap-2 px-4 py-2 border rounded-md hover:bg-accent transition-colors",
-                            formButtonPrimary: "w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors",
-                            formFieldInput: "w-full px-3 py-2 border rounded-md bg-background focus:ring-2 focus:ring-primary focus:outline-none",
-                            footerActionLink: "text-primary hover:underline",
-                        },
-                    }}
-                    routing="path"
-                    path="/sign-in"
-                    signUpUrl="/sign-up"
-                    afterSignInUrl="/dashboard/user"
-                    redirectUrl="/dashboard/user"
-                />
-            </motion.div>
-        </div>
-    );
-}
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+    ({ className, ...props }, ref) => (
+        <textarea
+            ref={ref}
+            className={cn(
+                "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                className
+            )}
+            {...props}
+        />
+    )
+);
+Textarea.displayName = "Textarea";
+
+export { Textarea };
